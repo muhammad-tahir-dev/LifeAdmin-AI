@@ -1,0 +1,13 @@
+# Existing LifeAdmin backend + Member 4 + Member 5
+fastapi>=0.110
+uvicorn[standard]>=0.29
+pydantic>=2.0
+python-dotenv>=1.0
+supabase>=2.0
+langchain-groq>=0.2
+groq>=0.11
+tavily-python>=0.5
+chromadb>=0.5
+sentence-transformers>=2.7
+PyMuPDF>=1.24,<2
+python-multipart>=0.0.9

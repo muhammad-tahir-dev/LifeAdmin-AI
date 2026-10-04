@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LifeAdmin AI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Figtree:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F5F7FA; --card:#FFFFFF; --ink:#101828; --ink2:#667085; --line:#E4E7EC; --line2:#D0D5DD;
+  --nav:#0B1B33; --accent:#0E7C86; --accent-d:#0A6068; --accent-bg:#E3F4F5;
+  --done:#12805C; --done-bg:#DCF5EA; --warn:#B54708; --warn-bg:#FEF0C7; --bad:#B42318; --bad-bg:#FEE4E2;
+  --display:'Bricolage Grotesque','Segoe UI',system-ui,sans-serif;
+  --body:'Figtree','Segoe UI',system-ui,sans-serif;
+  --sh:0 1px 2px rgba(16,24,40,.05),0 1px 3px rgba(16,24,40,.06);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{font-family:var(--body);background:var(--bg);color:var(--ink);font-size:14.5px;line-height:1.55;-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid #7CCBD1;outline-offset:2px}
+.app{display:grid;grid-template-columns:248px 1fr;min-height:100%}
+/* sidebar */
+.side{background:var(--nav);color:#fff;padding:22px 14px;display:flex;flex-direction:column;gap:26px;position:sticky;top:0;height:100vh}
+.brand{display:flex;gap:11px;align-items:center;padding:0 8px}
+.logo{width:34px;height:34px;border-radius:9px;background:var(--accent);display:grid;place-items:center;flex:none}
+.brand b{font-family:var(--display);font-weight:600;font-size:18px;letter-spacing:-.01em;display:block;line-height:1.1}
+.brand small{display:block;font-size:11.5px;color:#98A2B3;margin-top:2px}
+.nav{display:flex;flex-direction:column;gap:2px}
+.nav button{background:none;border:0;color:#CBD5E1;text-align:left;padding:10px 12px;border-radius:8px;font-weight:500;display:flex;gap:11px;align-items:center}
+.nav button svg{width:18px;height:18px;flex:none;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.nav button:hover{background:rgba(255,255,255,.07);color:#fff}
+.nav button[aria-current="page"]{background:rgba(255,255,255,.12);color:#fff;box-shadow:inset 3px 0 0 #5FD0D8}
+.side .foot{margin-top:auto;padding:12px;border-radius:10px;background:rgba(255,255,255,.06);font-size:12.5px;color:#CBD5E1;line-height:1.45}
+.side .foot b{display:block;color:#fff;font-weight:600;margin-bottom:2px}
+main{padding:32px 40px 80px;max-width:1160px;width:100%}
+h1,h2,h3{font-family:var(--display);letter-spacing:-.015em;line-height:1.2;font-weight:600}
+h2{font-size:18px;margin-bottom:12px}
+.muted{color:var(--ink2)}
+.pagehead{margin-bottom:24px}
+.pagehead h1{font-size:28px}
+.pagehead p{color:var(--ink2);margin-top:4px;max-width:60ch}
+/* cards & forms */
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:var(--sh)}
+.goalbox{padding:22px;margin-top:4px}
+.goalbox label.big{display:block;font-weight:600;font-size:15px;margin-bottom:8px}
+.goalbox textarea{width:100%;border:1px solid var(--line2);border-radius:10px;font-size:16px;padding:12px 14px;resize:none;background:#fff;min-height:78px}
+.goalbox textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 4px var(--accent-bg)}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 18px;align-items:center}
+.chips .lbl{font-size:13px;color:var(--ink2);margin-right:2px}
+.chip{border:1px solid var(--line2);background:#fff;border-radius:999px;padding:5px 12px;font-size:13px;color:var(--ink2)}
+.chip:hover{border-color:var(--accent);color:var(--accent-d);background:var(--accent-bg)}
+.row{display:flex;flex-wrap:wrap;gap:14px;align-items:flex-end}
+.field{display:flex;flex-direction:column;gap:5px;font-size:13px;color:var(--ink);font-weight:500}
+.field input,.field select{border:1px solid var(--line2);border-radius:8px;padding:9px 11px;background:#fff;width:150px}
+.field input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 4px var(--accent-bg)}
+.upload{border:1px dashed var(--line2);border-radius:8px;padding:9px 13px;font-size:13.5px;background:#fff;color:var(--ink2);display:inline-flex;gap:8px;align-items:center;cursor:pointer}
+.upload:hover{border-color:var(--accent);color:var(--accent-d)}
+.upload svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.upload input{display:none}
+.btn{background:var(--accent);color:#fff;border:0;border-radius:8px;padding:10px 18px;font-weight:600;box-shadow:var(--sh)}
+.btn:hover{background:var(--accent-d)}
+.btn.ghost{background:#fff;color:var(--ink);border:1px solid var(--line2)}
+.btn.ghost:hover{background:var(--bg)}
+.btn.danger{background:#fff;color:var(--bad);border:1px solid var(--line2)}
+.btn.danger:hover{background:var(--bad-bg)}
+.btn:disabled{opacity:.55;cursor:not-allowed}
+.btn.small{padding:8px 14px;font-size:13.5px}
+.spacer{flex:1}
+/* summary */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px;margin-bottom:24px}
+.stat{padding:16px 18px}
+.stat span{color:var(--ink2);font-size:13px;display:block}
+.stat b{font-family:var(--display);font-weight:600;font-size:28px;display:block;margin-top:4px;letter-spacing:-.02em}
+.stat small{color:var(--ink2);font-size:12.5px}
+.section{margin-top:30px}
+.secthead{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px}
+/* goals */
+.goals{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+.gcard{padding:18px;text-align:left;display:flex;flex-direction:column;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:var(--sh)}
+.gcard:hover{border-color:var(--accent)}
+.gcard h3{font-size:16px}
+.bar{height:6px;border-radius:99px;background:var(--line);overflow:hidden}
+.bar>i{display:block;height:100%;background:var(--accent);border-radius:99px;transition:width .35s}
+.bar.ok>i{background:var(--done)}
+.meta{display:flex;justify-content:space-between;font-size:13px;color:var(--ink2)}
+.empty{background:var(--card);border:1px dashed var(--line2);border-radius:12px;padding:28px;color:var(--ink2);text-align:center}
+/* agents run */
+.run{margin-top:4px;padding:8px 22px}
+.agent{display:flex;gap:14px;align-items:center;padding:14px 0;border-bottom:1px solid var(--line);opacity:.45;transition:opacity .3s}
+.agent:last-child{border:0}
+.agent.on,.agent.fin{opacity:1}
+.dot{width:24px;height:24px;border-radius:50%;border:2px solid var(--line2);flex:none;display:grid;place-items:center;font-size:12px;color:#fff}
+.agent.on .dot{border-color:var(--accent);border-top-color:transparent;animation:spin .8s linear infinite}
+.agent.fin .dot{border-color:var(--done);background:var(--done)}
+@keyframes spin{to{transform:rotate(360deg)}}
+.agent b{font-weight:600}
+.agent span{color:var(--ink2);font-size:13px;display:block}
+/* roadmap */
+.back{background:none;border:0;color:var(--ink2);font-weight:500;margin-bottom:12px;padding:0;display:inline-flex;gap:6px;align-items:center}
+.back:hover{color:var(--ink)}
+.rhead{display:flex;gap:22px;align-items:center;flex-wrap:wrap;margin-bottom:20px}
+.rhead h1{font-size:clamp(22px,3vw,28px);flex:1;min-width:220px}
+.ring{--p:0;width:72px;height:72px;border-radius:50%;background:conic-gradient(var(--accent) calc(var(--p)*1%),var(--line) 0);display:grid;place-items:center;flex:none}
+.ring span{width:56px;height:56px;border-radius:50%;background:var(--bg);display:grid;place-items:center;font-family:var(--display);font-weight:600;font-size:16px}
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:24px}
+.fact{padding:12px 16px;font-size:13px;color:var(--ink2)}
+.fact b{display:block;font-family:var(--display);font-weight:600;font-size:20px;color:var(--ink);margin-bottom:1px}
+.fact.bad b{color:var(--bad)}
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:24px;align-items:start}
+.route{position:relative;padding-left:32px}
+.route:before{content:"";position:absolute;left:9px;top:10px;bottom:10px;width:2px;background:var(--line2)}
+.phase{position:relative;margin-bottom:24px}
+.phase:before{content:"";position:absolute;left:-30px;top:3px;width:16px;height:16px;border-radius:50%;background:#fff;border:2px solid var(--line2)}
+.phase.complete:before{background:var(--done);border-color:var(--done)}
+.phase h3{font-size:15.5px;margin-bottom:10px;display:flex;gap:10px;align-items:baseline}
+.phase h3 small{font-family:var(--body);font-size:12.5px;font-weight:500;color:var(--ink2)}
+.task{display:flex;gap:12px;align-items:flex-start;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-bottom:8px;box-shadow:var(--sh)}
+.task input[type=checkbox]{width:18px;height:18px;margin-top:2px;accent-color:var(--accent);flex:none;cursor:pointer}
+.task .t{flex:1;min-width:0}
+.task .t b{font-weight:600}
+.task.done .t b{text-decoration:line-through;color:var(--ink2);font-weight:500}
+.task.skipped{background:transparent;border-style:dashed;box-shadow:none;opacity:.7}
+.task .note{font-size:13px;color:var(--ink2)}
+.tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.tag{font-size:12px;padding:2px 9px;border-radius:6px;background:var(--bg);color:var(--ink2);font-weight:500;border:1px solid var(--line)}
+.tag.cost{background:var(--accent-bg);color:var(--accent-d);border-color:transparent}
+.tag.verify{background:var(--warn-bg);color:var(--warn);border-color:transparent}
+.tag.skip{background:var(--line)}
+.tag.late{background:var(--bad-bg);color:var(--bad);border-color:transparent}
+.panel{padding:18px;margin-bottom:16px}
+.panel h3{font-size:15px;margin-bottom:4px}
+.panel .field input{width:100%}
+.panel .row{gap:10px;margin:14px 0}
+.panel .row .field{flex:1;min-width:110px}
+.log{list-style:none;margin-top:14px;font-size:13px}
+.log li{padding:8px 10px;border-left:3px solid var(--accent);background:var(--accent-bg);border-radius:0 8px 8px 0;margin-top:6px}
+.docs{list-style:none}
+.docs li{font-size:13.5px;padding:9px 0;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:8px}
+.docs li:last-child{border:0}
+/* progress lists */
+.list{overflow:hidden;margin-bottom:6px}
+.list .li{display:flex;justify-content:space-between;gap:16px;padding:14px 18px;border-bottom:1px solid var(--line);align-items:center}
+.list .li:last-child{border:0}
+.list .li>div{min-width:0}
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:11px 18px;border-radius:10px;font-weight:500;z-index:9;box-shadow:0 8px 24px rgba(16,24,40,.25)}
+/* welcome / landing */
+.app.landing{grid-template-columns:1fr}
+.app.landing .side{display:none}
+.app.landing main{max-width:none;padding:0}
+button.brand{background:none;border:0;color:inherit;text-align:left;border-radius:10px;padding:6px 8px;cursor:pointer}
+button.brand:hover{background:rgba(255,255,255,.07)}
+button.brand span{display:block}
+.welcome{min-height:100vh;background:var(--nav);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:48px 24px}
+.welcome .mark{width:56px;height:56px;border-radius:14px;background:var(--accent);display:grid;place-items:center;margin-bottom:26px}
+.welcome h1{font-size:clamp(44px,9vw,92px);font-weight:600;letter-spacing:-.03em;line-height:1.02}
+.welcome .tag-line{color:#B6C2D4;max-width:44ch;margin:16px auto 0;font-size:clamp(15px,2vw,18px)}
+.welcome svg.path{width:min(720px,92%);height:auto;margin:38px 0 40px;overflow:visible}
+.welcome .route-line{fill:none;stroke:#5FD0D8;stroke-width:2.5;stroke-linecap:round;stroke-dasharray:1;stroke-dashoffset:1;animation:draw 1.8s ease-out .2s forwards}
+.welcome .node{fill:var(--nav);stroke:#5FD0D8;stroke-width:2.5;opacity:0;animation:pop .4s ease-out forwards}
+.welcome .node.last{fill:#5FD0D8}
+@keyframes draw{to{stroke-dashoffset:0}}
+@keyframes pop{to{opacity:1}}
+.welcome .start{display:flex;flex-direction:column;align-items:center;gap:14px}
+.welcome .btn{padding:13px 30px;font-size:16px}
+.welcome .hint{color:#98A2B3;font-size:14px;display:flex;gap:8px;align-items:center}
+kbd{font-family:var(--body);font-size:13px;font-weight:600;color:#fff;border:1px solid rgba(255,255,255,.35);border-bottom-width:3px;border-radius:7px;padding:3px 20px;background:rgba(255,255,255,.06)}
+@media (max-width:860px){
+  .app{grid-template-columns:1fr}
+  .side{position:fixed;top:auto;bottom:0;left:0;right:0;height:auto;flex-direction:row;padding:6px;z-index:5;gap:0}
+  .brand,.side .foot{display:none}
+  .nav{flex-direction:row;width:100%}
+  .nav button{flex:1;flex-direction:column;gap:3px;text-align:center;padding:8px 4px;font-size:12px}
+  .nav button[aria-current="page"]{box-shadow:none}
+  main{padding:22px 16px 100px}
+  .layout{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<div class="app landing" id="app">
+  <aside class="side">
+    <button class="brand" data-go="welcome" aria-label="Go to welcome page"><span class="logo"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.2 4.2L19 7"/></svg></span><span><b>LifeAdmin AI</b><small>Goal planning workspace</small></span></button>
+    <nav class="nav" id="nav" aria-label="Main"></nav>
+    <div class="foot"><b>How it works</b>Describe a goal, review the plan, and tick tasks off. Change your deadline or budget any time.</div>
+  </aside>
+  <main id="main"></main>
+</div>
+<div id="toast" class="toast" hidden></div>
+
+<script>
+/* =====================================================================
+   API LAYER  -  everything the UI needs from other members goes through here.
+   Right now these are mock/local so the UI runs standalone.
+   MEMBER 2 (Backend): replace load/save/auth with Supabase calls.
+   MEMBER 3 (Planner): replace createPlan() with the Planner/Action agent API.
+   MEMBER 4 (Research/Docs): replace analyzeDocument().
+   MEMBER 5 (Finance/Verify/Adaptive): replace replan().
+   Keep the return shapes the same and the UI will not need changes.
+   ===================================================================== */
+const TEMPLATES = {
+  internship:{match:/intern|job|career|cv|resume/i,phases:{
+    "Prepare":[["Update CV to one page","Lead with projects and skills, not coursework.",.08,0],["Compare your skills against 3 target roles","List what is missing and pick 2 gaps to close.",.15,0],["Polish 2 portfolio projects on GitHub","Add a clear README and screenshots to each.",.4,0],["Clean up your LinkedIn profile","Photo, headline, and project links.",.2,0]],
+    "Documents":[["Get an enrollment letter or transcript","Ask your department office. Some may charge a small fee.",.25,500,0,1],["Write a reusable cover letter","One base letter you edit per company.",.3,0],["Line up 2 references","A teacher or a past supervisor.",.35,0],["Print CV copies for career fairs","Only needed if you attend in person.",.5,300,1]],
+    "Apply":[["Shortlist 15 companies","Mix of software houses, startups, and labs.",.45,0],["Message 10 alumni for referrals","Short, specific, one ask.",.6,0],["Apply to 5 roles every week","Track each one in a sheet.",.75,0],["Take a paid certificate course","Skip this first if budget is tight.",.6,6000,1,1]],
+    "Interview":[["Practice 20 coding and 10 behavioral questions","Timed, out loud.",.88,0],["Follow up on every application after 5 days","Two lines, polite.",1,0]]}},
+  passport:{match:/passport|cnic|nadra|visa|license|licence|renew/i,phases:{
+    "Gather documents":[["Original CNIC and a copy","Check that it is not expired.",.05,0],["Old passport (renewal) or B-form (first time)","",.05,0],["Two passport-size photos","Check the background color rule.",.1,400]],
+    "Fees":[["Check the fee for your page count and speed","Normal and urgent have different fees.",.15,0,0,1],["Pay the fee at an authorized bank","Estimate only. Confirm the amount before paying.",.3,9000,0,1]],
+    "Apply":[["Book an appointment or visit your regional office","Go early. Carry originals and copies.",.45,0],["Complete biometrics and submit","Keep the receipt slip safe.",.55,0]],
+    "Receive":[["Track your application status","Use the tracking ID from the slip.",.75,0],["Collect your passport or receive it by courier","Courier adds a delivery charge.",1,500,1]]}},
+  travel:{match:/trip|travel|tour|vacation|holiday|umrah|hajj|flight/i,phases:{
+    "Decide":[["Fix dates and a total budget","Everything else depends on these two.",.08,0],["Pick the destination and the top 5 things to do","",.15,0]],
+    "Paperwork":[["Check passport validity (6+ months left)","",.2,0,0,1],["Check visa rules for your passport","Use the official embassy site.",.25,0,0,1]],
+    "Book":[["Compare and book flights","Check baggage rules.",.45,60000],["Book stay for each night","Free cancellation if possible.",.55,40000],["Buy travel insurance","",.65,5000,1]],
+    "Prepare":[["Get currency and enable your card abroad","",.85,0],["Pack and save offline maps and tickets","",.95,0]]}},
+  generic:{phases:{
+    "Define":[["Write the exact outcome and your deadline","One sentence you can check later.",.08,0],["List what you already have and what is missing","",.15,0]],
+    "Research":[["Find the official requirements","Use official sources first.",.3,0,0,1],["Estimate total time and cost","",.35,0]],
+    "Do":[["Gather the documents or materials needed","",.55,0],["Complete the main action","",.8,0]],
+    "Finish":[["Check that everything was received or approved","",.95,0],["Save copies and note the next renewal date","",1,0]]}}
+};
+const AGENTS = [
+  ["Planner Agent","Breaking your goal into phases and tasks"],
+  ["Research Agent","Finding requirements and official sources"],
+  ["Document Agent","Checking the documents you uploaded"],
+  ["Finance Agent","Estimating cost against your budget"],
+  ["Verification Agent","Flagging facts you should double-check"],
+  ["Action Agent","Building your checklist"]
+];
+const uid=()=>Math.random().toString(36).slice(2,9);
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+
+const api = {
+  loadGoals(){ try{return JSON.parse(localStorage.getItem("lifeadmin_goals")||"[]")}catch(e){return []} },   // MEMBER 2
+  saveGoals(g){ try{localStorage.setItem("lifeadmin_goals",JSON.stringify(g))}catch(e){} },                  // MEMBER 2
+  async analyzeDocument(file){ await sleep(400); return {name:file.name,note:"Uploaded. Analysis comes from the Document Agent."}; }, // MEMBER 4
+  async createPlan({text,days,budget,docs}){                                                                // MEMBER 3
+    const key=Object.keys(TEMPLATES).find(k=>TEMPLATES[k].match&&TEMPLATES[k].match.test(text))||"generic";
+    const tpl=TEMPLATES[key]; const tasks=[];
+    Object.entries(tpl.phases).forEach(([phase,list])=>list.forEach(([title,note,off,cost,optional,verify])=>{
+      tasks.push({id:uid(),phase,title,note,off,cost:cost||0,optional:!!optional,verify:!!verify,done:false,skipped:false,due:Math.max(1,Math.round(off*days))});
+    }));
+    const goal={id:uid(),title:text.trim(),days,budget,created:Date.now(),tasks,docs:docs||[],log:[]};
+    return applyBudget(goal).goal;
+  },
+  async replan(goal,{days,budget}){ await sleep(500);                                                       // MEMBER 5
+    const g=structuredClone(goal); const changes=[];
+    if(days!==g.days){ g.tasks.forEach(t=>t.due=Math.max(1,Math.round(t.off*days)));
+      changes.push(`Deadline changed from ${g.days} to ${days} days. All due dates were rescaled.`);
+      if(days<g.days*0.5) changes.push("This is a big squeeze. Do optional tasks later or skip them."); g.days=days; }
+    if(budget!==g.budget){ changes.push(`Budget changed from ${money(g.budget)} to ${money(budget)}.`); g.budget=budget; }
+    const res=applyBudget(g); res.changes.forEach(c=>changes.push(c));
+    res.goal.log=[...changes.map(c=>({t:Date.now(),text:c})),...(g.log||[])].slice(0,12);
+    return {goal:res.goal,changes};
+  }
+};
+/* Drops optional tasks (most expensive first) until the plan fits the budget. */
+function applyBudget(goal){
+  const changes=[]; const g=goal;
+  g.tasks.forEach(t=>{ if(t.skipped&&t.autoSkipped){t.skipped=false;t.autoSkipped=false} });
+  if(g.budget>0){
+    const cost=()=>g.tasks.filter(t=>!t.skipped).reduce((s,t)=>s+t.cost,0);
+    const opt=g.tasks.filter(t=>t.optional&&t.cost>0&&!t.done).sort((a,b)=>b.cost-a.cost);
+    for(const t of opt){ if(cost()<=g.budget)break; t.skipped=true;t.autoSkipped=true; changes.push(`Skipped "${t.title}" to save ${money(t.cost)}.`); }
+    if(cost()>g.budget) changes.push(`Required costs are ${money(cost())}, which is still above your budget. Review the costs.`);
+  }
+  return {goal:g,changes};
+}
+
+/* =====================================================================
+   UI
+   ===================================================================== */
+const money=n=>"PKR "+Number(n||0).toLocaleString("en-PK");
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const state={view:"welcome",goalId:null,goals:api.loadGoals(),running:null,pendingDocs:[]};
+const $=id=>document.getElementById(id);
+const active=g=>g.tasks.filter(t=>!t.skipped);
+const pct=g=>{const a=active(g);return a.length?Math.round(a.filter(t=>t.done).length/a.length*100):0};
+const spent=g=>active(g).filter(t=>t.done).reduce((s,t)=>s+t.cost,0);
+const planned=g=>active(g).reduce((s,t)=>s+t.cost,0);
+const daysLeft=g=>Math.max(0,g.days-Math.floor((Date.now()-g.created)/86400000));
+function save(){api.saveGoals(state.goals)}
+function toast(m){const t=$("toast");t.textContent=m;t.hidden=false;clearTimeout(toast.h);toast.h=setTimeout(()=>t.hidden=true,2600)}
+function go(view,id){state.view=view;if(id)state.goalId=id;render();window.scrollTo(0,0)}
+
+function renderNav(){
+  const ic={home:'<path d="M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>',roadmap:'<path d="M9 6h11M9 12h11M9 18h11"/><path d="M4 6l1 1 2-2M4 12l1 1 2-2M4 18l1 1 2-2"/>',progress:'<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>'};
+  const items=[["home","Home"],["roadmap","Checklist"],["progress","Progress"]];
+  $("nav").innerHTML=items.map(([k,l])=>`<button data-go="${k}" ${state.view===k?'aria-current="page"':''}><svg viewBox="0 0 24 24">${ic[k]}</svg>${l}</button>`).join("");
+}
+function welcomeView(){
+  return `<section class="welcome">
+    <div class="mark"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.2 4.2L19 7"/></svg></div>
+    <h1>LifeAdmin AI</h1>
+    <p class="tag-line">Tell it what you want to accomplish. It builds the roadmap and helps you get it done.</p>
+    <svg class="path" viewBox="0 0 720 60" aria-hidden="true">
+      <path class="route-line" pathLength="1" d="M10 42 C 110 42, 130 16, 240 16 S 370 46, 480 30 S 620 12, 710 20"/>
+      <circle class="node" cx="10" cy="42" r="7" style="animation-delay:.3s"/>
+      <circle class="node" cx="240" cy="16" r="7" style="animation-delay:.8s"/>
+      <circle class="node" cx="480" cy="30" r="7" style="animation-delay:1.3s"/>
+      <circle class="node last" cx="710" cy="20" r="7" style="animation-delay:1.8s"/>
+    </svg>
+    <div class="start">
+      <button class="btn" data-go="home" id="startBtn">Get started</button>
+      <div class="hint">or press <kbd>Space</kbd> to continue</div>
+    </div>
+  </section>`;
+}
+function render(){
+  $("app").classList.toggle("landing",state.view==="welcome");
+  renderNav();
+  const m=$("main");
+  if(state.view==="welcome")m.innerHTML=welcomeView();
+  else if(state.view==="home")m.innerHTML=homeView();
+  else if(state.view==="roadmap")m.innerHTML=roadmapView();
+  else m.innerHTML=progressView();
+}
+
+/* ---------- Home ---------- */
+const EXAMPLES=["I want to get an internship in AI","I want to renew my passport","I want to plan a trip to Turkey","I want to start a small business"];
+function homeView(){
+  if(state.running)return runView();
+  const goals=state.goals;
+  const all=goals.flatMap(g=>active(g));
+  const doneN=all.filter(t=>t.done).length;
+  const nextTask=goals.flatMap(g=>active(g).filter(t=>!t.done).map(t=>({...t,gt:g.title}))).sort((x,y)=>x.due-y.due)[0];
+  const up='<svg viewBox="0 0 24 24"><path d="M12 16V4M7 9l5-5 5 5M4 20h16"/></svg>';
+  return `
+  <div class="pagehead"><h1>Home</h1><p>Describe what you want to achieve. LifeAdmin AI builds the tasks, timeline, and checklist, and updates the plan when your situation changes.</p></div>
+  ${goals.length?`<div class="stats">
+    <div class="card stat"><span>Active goals</span><b>${goals.length}</b></div>
+    <div class="card stat"><span>Tasks completed</span><b>${doneN}<small> / ${all.length}</small></b></div>
+    <div class="card stat"><span>Next task due</span><b style="font-size:17px;margin-top:8px">${nextTask?esc(nextTask.title):"Nothing pending"}</b><small>${nextTask?`Day ${nextTask.due} &middot; ${esc(nextTask.gt)}`:""}</small></div>
+  </div>`:""}
+  <div class="card goalbox">
+    <label class="big" for="goalText">What is your goal?</label>
+    <textarea id="goalText" rows="2" placeholder="Example: I want to get an internship in AI before December"></textarea>
+    <div class="chips" aria-label="Examples"><span class="lbl">Try:</span>${EXAMPLES.map(e=>`<button class="chip" data-example="${esc(e)}">${esc(e)}</button>`).join("")}</div>
+    <div class="row">
+      <label class="field">Days available<input id="goalDays" type="number" min="1" value="30"></label>
+      <label class="field">Budget (PKR)<input id="goalBudget" type="number" min="0" step="500" placeholder="No limit"></label>
+      <label class="upload">${up}<input id="goalFile" type="file" accept=".pdf,.doc,.docx,.png,.jpg"><span id="fileLabel">${state.pendingDocs.length?esc(state.pendingDocs[0].name):"Attach CV or documents"}</span></label>
+      <span class="spacer"></span>
+      <button class="btn" id="makePlan">Build my plan</button>
+    </div>
+  </div>
+  <section class="section">
+    <div class="secthead"><h2 style="margin:0">Your goals</h2></div>
+    ${goals.length?`<div class="goals">${goals.map(g=>`
+      <button class="gcard" data-open="${g.id}">
+        <h3>${esc(g.title)}</h3>
+        <div class="bar ${pct(g)===100?"ok":""}"><i style="width:${pct(g)}%"></i></div>
+        <div class="meta"><span>${pct(g)}% complete</span><span>${daysLeft(g)} days left</span></div>
+      </button>`).join("")}</div>`:
+      `<div class="empty">No goals yet. Enter a goal above, or pick one of the examples, to generate your first plan.</div>`}
+  </section>`;
+}
+function runView(){
+  const r=state.running;
+  return `<div class="pagehead"><h1>Building your plan</h1><p>${esc(r.text)}</p></div>
+  <div class="card run" role="status" aria-live="polite">${AGENTS.map((a,i)=>`
+    <div class="agent ${i<r.step?"fin":i===r.step?"on":""}">
+      <div class="dot">${i<r.step?"&#10003;":""}</div>
+      <div><b>${a[0]}</b><span>${a[1]}</span></div>
+    </div>`).join("")}</div>`;
+}
+async function startPlan(){
+  const text=$("goalText").value.trim();
+  if(!text){toast("Write your goal first");$("goalText").focus();return}
+  const days=Math.max(1,parseInt($("goalDays").value)||30);
+  const budget=parseInt($("goalBudget").value)||0;
+  const docs=state.pendingDocs.slice();
+  state.running={text,step:0};render();
+  const planP=api.createPlan({text,days,budget,docs});
+  for(let i=1;i<=AGENTS.length;i++){await sleep(550);state.running.step=i;render()}
+  const goal=await planP;
+  state.goals.unshift(goal);save();state.pendingDocs=[];state.running=null;
+  go("roadmap",goal.id);toast("Plan ready. Tick tasks as you finish them.");
+}
+
+/* ---------- Roadmap ---------- */
+function roadmapView(){
+  const g=state.goals.find(x=>x.id===state.goalId)||state.goals[0];
+  if(!g)return `<h2>Roadmap</h2><div class="empty">Create a goal on Home first. Your checklist will appear here.</div>`;
+  state.goalId=g.id;
+  const phases=[...new Set(g.tasks.map(t=>t.phase))];
+  const over=g.budget>0&&planned(g)>g.budget;
+  const elapsed=Math.floor((Date.now()-g.created)/86400000);
+  return `
+  <button class="back" data-go="home">&#8592; Back to goals</button>
+  <div class="rhead">
+    <h1>${esc(g.title)}</h1>
+    <div class="ring" style="--p:${pct(g)}" role="img" aria-label="${pct(g)} percent complete"><span>${pct(g)}%</span></div>
+  </div>
+  <div class="facts">
+    <div class="card fact"><b>${daysLeft(g)}</b>days left of ${g.days}</div>
+    <div class="card fact"><b>${active(g).filter(t=>t.done).length}/${active(g).length}</b>tasks done</div>
+    <div class="card fact ${over?"bad":""}"><b>${money(planned(g))}</b>${g.budget?`planned of ${money(g.budget)}`:"planned cost"}</div>
+    <div class="card fact"><b>${money(spent(g))}</b>spent so far</div>
+  </div>
+  <div class="layout">
+    <div class="route">
+      ${phases.map(p=>{
+        const ts=g.tasks.filter(t=>t.phase===p);const act=ts.filter(t=>!t.skipped);
+        const complete=act.length&&act.every(t=>t.done);
+        return `<div class="phase ${complete?"complete":""}">
+          <h3>${esc(p)} <small>${act.filter(t=>t.done).length} of ${act.length}</small></h3>
+          ${ts.map(t=>`
+          <div class="task ${t.done?"done":""} ${t.skipped?"skipped":""}">
+            <input type="checkbox" data-task="${t.id}" id="t-${t.id}" ${t.done?"checked":""} ${t.skipped?"disabled":""} aria-label="${esc(t.title)}">
+            <div class="t"><label for="t-${t.id}"><b>${esc(t.title)}</b></label>
+              ${t.note?`<div class="note">${esc(t.note)}</div>`:""}
+              <div class="tags">
+                <span class="tag">Day ${t.due}</span>
+                ${!t.done&&!t.skipped&&t.due<elapsed?`<span class="tag late">Overdue</span>`:""}
+                ${t.cost?`<span class="tag cost">${money(t.cost)}</span>`:""}
+                ${t.optional?`<span class="tag">Optional</span>`:""}
+                ${t.verify?`<span class="tag verify">Check on the official site</span>`:""}
+                ${t.skipped?`<span class="tag skip">Skipped to fit budget</span>`:""}
+              </div></div>
+          </div>`).join("")}
+        </div>`}).join("")}
+    </div>
+    <aside>
+      <div class="card panel">
+        <h3>Things changed?</h3>
+        <p class="muted" style="font-size:13.5px">Update your deadline or budget and the plan adjusts.</p>
+        <div class="row">
+          <label class="field">Days<input id="newDays" type="number" min="1" value="${g.days}"></label>
+          <label class="field">Budget (PKR)<input id="newBudget" type="number" min="0" step="500" value="${g.budget||""}" placeholder="No limit"></label>
+        </div>
+        <button class="btn small" id="replan" data-id="${g.id}">Update plan</button>
+        ${g.log&&g.log.length?`<ul class="log">${g.log.map(l=>`<li>${esc(l.text)}</li>`).join("")}</ul>`:""}
+      </div>
+      <div class="card panel">
+        <h3>Documents</h3>
+        <ul class="docs">${g.docs.length?g.docs.map(d=>`<li><span>${esc(d.name)}</span><span class="muted">${esc(d.status||"Uploaded")}</span></li>`).join(""):`<li class="muted">None yet. Add your CV or ID copies so the plan can use them.</li>`}</ul>
+        <label class="upload" style="margin-top:10px"><input type="file" id="addDoc" data-id="${g.id}" accept=".pdf,.doc,.docx,.png,.jpg"><span>Add a document</span></label>
+      </div>
+      <button class="btn danger small" data-delete="${g.id}">Delete goal</button>
+    </aside>
+  </div>`;
+}
+
+/* ---------- Progress ---------- */
+function progressView(){
+  const gs=state.goals;
+  const head='<div class="pagehead"><h1>Progress</h1><p>See how every goal is moving and what to do next.</p></div>';
+  if(!gs.length)return head+`<div class="empty">Nothing to track yet. Build a plan on Home and your progress will appear here.</div>`;
+  const all=gs.flatMap(g=>active(g).map(t=>({...t,gid:g.id,gt:g.title})));
+  const done=all.filter(t=>t.done).length;
+  const upcoming=all.filter(t=>!t.done).sort((a,b)=>a.due-b.due).slice(0,6);
+  return head+`
+  <div class="stats">
+    <div class="card stat"><span>Goals</span><b>${gs.length}</b></div>
+    <div class="card stat"><span>Overall completion</span><b>${all.length?Math.round(done/all.length*100):0}%</b></div>
+    <div class="card stat"><span>Tasks finished</span><b>${done}<small> / ${all.length}</small></b></div>
+    <div class="card stat"><span>Spent so far</span><b style="font-size:22px;margin-top:8px">${money(gs.reduce((s,g)=>s+spent(g),0))}</b></div>
+  </div>
+  <section class="section" style="margin-top:0"><h2>By goal</h2>
+  <div class="card list">${gs.map(g=>`
+    <div class="li"><div style="flex:1"><b>${esc(g.title)}</b>
+      <div class="bar ${pct(g)===100?"ok":""}" style="margin-top:8px"><i style="width:${pct(g)}%"></i></div></div>
+      <button class="btn ghost small" data-open="${g.id}">${pct(g)}% &middot; Open</button></div>`).join("")}</div></section>
+  <section class="section"><h2>Do next</h2>
+  <div class="card list">${upcoming.length?upcoming.map(t=>`
+    <div class="li"><div><b>${esc(t.title)}</b><div class="muted" style="font-size:13px">${esc(t.gt)}</div></div>
+      <span class="tag">Day ${t.due}</span></div>`).join(""):`<div class="li">All tasks are done.</div>`}</div></section>`;
+}
+
+/* ---------- Events ---------- */
+document.addEventListener("click",e=>{
+  const b=e.target.closest("button");if(!b)return;
+  if(b.dataset.go){go(b.dataset.go)}
+  else if(b.dataset.open){go("roadmap",b.dataset.open)}
+  else if(b.dataset.example){const t=$("goalText");t.value=b.dataset.example;t.focus()}
+  else if(b.id==="makePlan"){startPlan()}
+  else if(b.id==="replan"){doReplan(b)}
+  else if(b.dataset.delete){
+    if(confirm("Delete this goal and its checklist?")){state.goals=state.goals.filter(g=>g.id!==b.dataset.delete);save();state.goalId=null;go("home")}
+  }
+});
+document.addEventListener("change",async e=>{
+  const el=e.target;
+  if(el.dataset.task){
+    const g=state.goals.find(x=>x.id===state.goalId);const t=g.tasks.find(x=>x.id===el.dataset.task);
+    t.done=el.checked;save();render();
+    if(pct(g)===100)toast("Every task is done. Goal complete.");
+  }else if(el.id==="goalFile"&&el.files[0]){
+    const d=await api.analyzeDocument(el.files[0]);state.pendingDocs=[{name:d.name,status:"Uploaded"}];
+    $("fileLabel").textContent=d.name;
+  }else if(el.id==="addDoc"&&el.files[0]){
+    const g=state.goals.find(x=>x.id===el.dataset.id);const d=await api.analyzeDocument(el.files[0]);
+    g.docs.push({name:d.name,status:"Uploaded"});save();render();toast("Document added");
+  }
+});
+async function doReplan(btn){
+  const g=state.goals.find(x=>x.id===btn.dataset.id);
+  const days=Math.max(1,parseInt($("newDays").value)||g.days);
+  const budget=parseInt($("newBudget").value)||0;
+  if(days===g.days&&budget===(g.budget||0)){toast("Change the days or the budget first");return}
+  btn.disabled=true;btn.textContent="Updating...";
+  const res=await api.replan(g,{days,budget});
+  Object.assign(g,res.goal);save();render();
+  toast(res.changes.length?"Plan updated":"Plan checked. No changes needed.");
+}
+document.addEventListener("keydown",e=>{
+  if(state.view!=="welcome")return;
+  if(e.code==="Space"||e.key===" "){e.preventDefault();go("home")}
+});
+render();
+</script>
+</body>
+</html>
