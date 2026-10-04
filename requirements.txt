@@ -1,0 +1,13 @@
+streamlit
+fastapi
+uvicorn[standard]
+pydantic
+python-dotenv
+supabase
+langchain-groq
+groq
+tavily-python
+chromadb
+sentence-transformers
+PyMuPDF
+python-multipart
